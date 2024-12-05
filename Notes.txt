@@ -1,0 +1,281 @@
+http://localhost:49927/PhoenixLogout.aspx
+
+
+<telerik:GridTemplateColumn HeaderText="Id" >
+<ItemTemplate>
+<telerik:RadLabel ID="lblId" runat="server"></telerik:RadLabel>
+</ItemTemplate>
+<FooterTemplate>
+<telerik:RadTextBox ID="txtID" runat="server"></telerik:RadTextBox>
+</FooterTemplate>
+</telerik:GridTemplateColumn>
+<telerik:GridTemplateColumn HeaderText="Name">
+<ItemTemplate>
+<telerik:RadLabel ID="lblName" runat="server"></telerik:RadLabel>
+</ItemTemplate>
+<FooterTemplate>
+<telerik:RadTextBox ID="txtName" runat="server"></telerik:RadTextBox>
+</FooterTemplate>
+</telerik:GridTemplateColumn>
+<telerik:GridTemplateColumn HeaderText="Mail">
+<ItemTemplate>
+<telerik:RadLabel ID="lblMail" runat="server"></telerik:RadLabel>
+</ItemTemplate>
+<FooterTemplate>
+<telerik:RadTextBox ID="txtMail" runat="server"></telerik:RadTextBox>
+</FooterTemplate>
+</telerik:GridTemplateColumn>
+<telerik:GridTemplateColumn HeaderText="Dob">
+<ItemTemplate>
+<telerik:RadLabel ID="lblDob" runat="server"></telerik:RadLabel>
+</ItemTemplate>
+<FooterTemplate>
+<telerik:RadTextBox ID="txtDob" runat="server"></telerik:RadTextBox>
+</FooterTemplate>
+</telerik:GridTemplateColumn>
+<telerik:GridTemplateColumn >
+<ItemTemplate>
+<telerik:RadButton ID="btndelete1" runat="server" Text="Delete" OnClick="btndelete1_Click"></telerik:RadButton>
+</ItemTemplate>
+<FooterTemplate>
+<telerik:RadButton ID="btninsert" runat="server" Text="Insert" OnClick="btninsert_Click"></telerik:RadButton>
+</FooterTemplate>
+</telerik:GridTemplateColumn>
+</Columns>
+
+
+protected void btninsert_Click(object sender, EventArgs e)
+    {
+        try           
+       {
+            using (SqlConnection connection = new SqlConnection(sqlCon))
+            {
+                connection.Open();
+                SqlCommand command = new SqlCommand("SP_INSERT", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                //@FID @FNAME @Fmail @FDATE
+                GridFooterItem item = (GridFooterItem)((RadButton)sender).NamingContainer;
+                RadTextBox txtID = (RadTextBox)item.FindControl("txtID");
+                RadTextBox txtName = (RadTextBox)item.FindControl("txtName");
+                RadTextBox txtMail = (RadTextBox)item.FindControl("txtMail");
+                command.Parameters.AddWithValue("@FID", txtID.Text);
+                command.Parameters.AddWithValue("@FNAME", txtName.Text);
+                command.Parameters.AddWithValue("@FMAIL", txtName.Text);
+                command.Parameters.AddWithValue("@FDATE", txtDob.Text);
+                int r = command.ExecuteNonQuery();
+                if (r > 0)
+                {
+                    Response.Write("New Student Created successfully");
+                }
+                connection.Close();
+            }
+            gv2.Rebind();
+        }
+        catch(Exception Ex)
+        {
+            Response.Write(Ex.Message+" Error");
+        }
+    }
+    protected void grid1_NeedDataSource(object sender, Telerik.Web.UI.GridNeedDataSourceEventArgs e)
+    {
+        gv2.DataSource = getdatafromstoreprocedure();
+    }
+ 
+    public DataTable getdatafromstoreprocedure()
+    {
+        DataTable dt = new DataTable();
+        try
+        {
+            //string connectionString = ConfigurationManager.ConnectionStrings["sqlcon"].ConnectionString;
+ 
+            using (SqlConnection conn = new SqlConnection(sqlCon))
+            {
+                conn.Open();
+                string StoreProcedureName = "SP_READ";
+                using (SqlCommand cmd = new SqlCommand(StoreProcedureName, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+ 
+                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                    sda.Fill(dt);
+                    return dt;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Response.Write(ex.Message + " Newwww");
+            return dt;
+        }
+    }
+ 
+    protected void grid1_ItemDataBound(object sender, GridItemEventArgs e)
+    {
+        if (e.Item is GridDataItem)
+        {
+            DataRowView drv = (DataRowView)e.Item.DataItem;
+            RadLabel lblId = (RadLabel)e.Item.FindControl("lblId");
+            RadLabel lblName = (RadLabel)e.Item.FindControl("lblName");
+            RadLabel lblMail = (RadLabel)e.Item.FindControl("lblMail");
+            RadLabel lblDob = (RadLabel)e.Item.FindControl("lblDob");
+            if (lblId != null)
+            {
+                lblId.Text = drv["FLDID"].ToString();
+            }
+            if (lblName != null)
+            {
+                lblName.Text = drv["FLDNAME"].ToString();
+            }
+            if (lblMail != null)
+            {
+                lblMail.Text = drv["FLDEMAIL"].ToString();
+            }
+            if (lblDob != null)
+            {
+                lblDob.Text = drv["FLDDOB"].ToString();
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="NewPage.aspx.cs" Inherits="Registers_NewPage" %>
+
+<%@ Import Namespace="SouthNests.Phoenix.Registers" %>
+<%@ Register TagPrefix="eluc" TagName="TabStrip" Src="~/UserControls/UserControlTabsTelerik.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Error" Src="~/UserControls/UserControlErrorMessage.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Status" Src="~/UserControls/UserControlStatus.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="ToolTip" Src="~/UserControls/UserControlToolTip.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Category" Src="~/UserControls/UserControlCertificateCategory.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Department" Src="~/UserControls/UserControlDepartment.ascx" %>
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <telerik:RadCodeBlock ID="Radcodeblock1" runat="server">
+        <%: Scripts.Render("~/bundles/js") %>
+        <%: Styles.Render("~/bundles/css") %>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                var browserHeight = $telerik.$(window).height();
+                $("#gvBasicCause").height(browserHeight - 90);
+            });
+        </script>
+    </telerik:RadCodeBlock>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <telerik:RadScriptManager runat="server" ID="RadScriptManager1"></telerik:RadScriptManager>
+        <telerik:RadSkinManager ID="RadSkinManager1" runat="server" />
+        <telerik:RadAjaxPanel ID="RadAjaxPanel1" runat="server">
+            
+            <eluc:Error ID="ucError" runat="server" Text="" Visible="false"></eluc:Error>
+            <eluc:Status runat="server" ID="ucStatus" />
+
+            <table>
+                <tr>
+                    <td>
+                        <telerik:RadLabel ID="lblsearch" runat="server" Text="Search"></telerik:RadLabel>
+                    </td>
+                    <td>
+                        <telerik:RadTextBox ID="txtsearch" runat="server"></telerik:RadTextBox>
+                    </td>
+                </tr>
+            </table>
+
+            <eluc:TabStrip ID="MenuHeader" runat="server" Title=""></eluc:TabStrip>
+
+            <telerik:RadGrid ID="gvemp" runat="server" AutoGenerateColumns="False" OnNeedDataSource="RadGrid1_NeedDataSource" OnItemDataBound="gvemp_ItemDataBound">
+                <%-- AllowCustomPaging="true" AllowSorting="true" AllowPaging="true"
+                CellSpacing="0" ShowHeader="true" GridLines="None" OnNeedDataSource="gvCategory_NeedDataSource" Height="93%" GroupingEnabled="false" EnableHeaderContextMenu="true"
+                OnItemDataBound="gvCategory_ItemDataBound"
+                OnItemCommand="gvCategory_ItemCommand"
+                OnUpdateCommand="gvCategory_UpdateCommand"
+                OnSortCommand="gvCategory_SortCommand"--%>
+                <MasterTableView runat="server">
+                    <Columns>
+                        <%--<telerik:GridBoundColumn DataField="ID" HeaderText="ID" SortExpression="ID" />
+                        <telerik:GridBoundColumn DataField="Name" HeaderText="Name" SortExpression="Name" />
+                        <telerik:GridBoundColumn DataField="Email" HeaderText="Email" SortExpression="Email" />
+                        <telerik:GridCommandColumn ShowEditButton="True" ShowDeleteButton="True" />--%>
+
+                        <telerik:GridTemplateColumn HeaderText="Name">
+                            <ItemTemplate>
+                                <telerik:RadLabel ID="txtname" runat="server" ToolTip="Name" Text='<%# DataBinder.Eval(Container,"DataItem.FLDEMPLOYEENAME") %>'></telerik:RadLabel>
+                                <%--<telerik:RadLabel ID="txtname" runat="server"></telerik:RadLabel>--%>
+                            </ItemTemplate>
+                        </telerik:GridTemplateColumn>
+
+                        <telerik:GridTemplateColumn HeaderText="Age">
+                            <ItemTemplate>
+                                <telerik:RadLabel ID="txtage" runat="server" ToolTip="Age" Text='<%# DataBinder.Eval(Container,"DataItem.FLDEMPLOYEEAGE") %>'></telerik:RadLabel>
+                                <%--<telerik:RadLabel ID="txtage" runat="server"></telerik:RadLabel>--%>
+                            </ItemTemplate>
+                        </telerik:GridTemplateColumn>
+
+                        <telerik:GridTemplateColumn HeaderText="DOB">
+                            <ItemTemplate>
+                                <telerik:RadLabel ID="lblDepartmentid" runat="server" ToolTip="Date Of Birth" Text='<%# DataBinder.Eval(Container, "DataItem.FLDEMPLOYEEDOB") %>'></telerik:RadLabel>
+                                <%--<telerik:RadLabel ID="txtdob" runat="server" Text='<%# Eval("DOB", "{0:MM/dd/yyyy}") %>'></telerik:RadLabel>--%>
+                                <%--<telerik:RadLabel ID="lblDepartmentid" runat="server" Visible="false" Text='<%# DataBinder.Eval(Container,"DataItem.FLDEMPLOYEEDATAILESID") %>'></telerik:RadLabel>--%>
+                                <%--<telerik:RadLabel ID="txtdob" runat="server"></telerik:RadLabel>--%>
+                            </ItemTemplate>
+                        </telerik:GridTemplateColumn>
+
+                        <telerik:GridTemplateColumn HeaderText="Mobile">
+                            <ItemTemplate>
+                                <telerik:RadLabel ID="txtmobile" runat="server" ToolTip="Phone" Text='<%# DataBinder.Eval(Container,"DataItem.FLDEMPLOYEEMOBILE") %>'></telerik:RadLabel>
+                                <%--<telerik:RadLabel ID="txtmobile" runat="server"></telerik:RadLabel>--%>
+                            </ItemTemplate>
+                        </telerik:GridTemplateColumn>
+
+                        <telerik:GridTemplateColumn HeaderText="Location">
+                            <ItemTemplate>
+                                <telerik:RadLabel ID="txtlocation" runat="server" ToolTip="City" Text='<%# DataBinder.Eval(Container,"DataItem.FLDEMPLOYEELOCATION") %>'></telerik:RadLabel>
+                                <%--<telerik:RadLabel ID="txtlocation" runat="server"></telerik:RadLabel>--%>
+                            </ItemTemplate>
+                        </telerik:GridTemplateColumn>
+
+                        <telerik:GridTemplateColumn HeaderText="Action">
+                            <HeaderStyle HorizontalAlign="Center" VerticalAlign="Middle" />
+                            <ItemStyle Wrap="false" HorizontalAlign="Center" />
+                            <ItemTemplate>
+                                <asp:LinkButton runat="server" CommandName="EDIT" ID="cmdEdit" ToolTip="Edit">
+                                    <span class="icon"><i class="fas fa-edit"></i></span>
+                                </asp:LinkButton>
+                                <asp:LinkButton runat="server" CommandName="DELETE" ID="cmdDelete" ToolTip="Delete">
+                                    <span class="icon"><i class="fas fa-trash-alt"></i></span>
+                                </asp:LinkButton>
+                            </ItemTemplate>
+                        </telerik:GridTemplateColumn>
+                    </Columns>
+                </MasterTableView>
+            </telerik:RadGrid>
+        </telerik:RadAjaxPanel>
+    </form>
+</body>
+</html>
