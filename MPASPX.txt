@@ -1,0 +1,543 @@
+1st page - add, grid(search)
+RegisterFXContract.aspx
+
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="RegisterFXContract.aspx.cs" Inherits="Registers_RegisterFXContract" %>
+
+<%@ Register TagPrefix="eluc" TagName="TabStrip" Src="~/UserControls/UserControlTabsTelerik.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Error" Src="~/UserControls/UserControlErrorMessage.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Status" Src="~/UserControls/UserControlStatus.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Number" Src="~/UserControls/UserControlMaskNumber.ascx" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <telerik:RadCodeBlock ID="Radcodeblock1" runat="server">
+        <%: Scripts.Render("~/bundles/js") %>
+        <%: Styles.Render("~/bundles/css") %>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                var browserHeight = $telerik.$(window).height();
+                $("#gvBasicCause").height(browserHeight - 90);
+            });
+        </script>
+    </telerik:RadCodeBlock>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            <telerik:RadScriptManager runat="server" ID="RadScriptManager1" />
+            <telerik:RadSkinManager ID="RadSkinManager1" runat="server" />
+            <telerik:RadWindowManager RenderMode="Lightweight" ID="RadWindowManager1" runat="server" EnableShadow="true">
+            </telerik:RadWindowManager>
+            <telerik:RadAjaxPanel ID="RadAjaxPanel1" runat="server" Height="100%">
+                <eluc:Error ID="ucError" runat="server" Text="" Visible="false"></eluc:Error>
+                <eluc:Status runat="server" ID="ucStatus" />
+                <table>
+                    <tr>
+                        <td>
+                            <telerik:RadLabel ID="lblser" runat="server" Text="Contract Application"></telerik:RadLabel>
+                        </td>
+                        <td>
+                            <telerik:RadTextBox ID="ContractApp" runat="server"></telerik:RadTextBox>
+                        </td>
+                        <td>
+                            <telerik:RadLabel ID="lblser1" runat="server" Text="Bank Account"></telerik:RadLabel>
+                        </td>
+                        <td>
+                            <telerik:RadTextBox ID="BankAcc" runat="server"></telerik:RadTextBox>
+                        </td>
+                    </tr>
+                </table>
+                <eluc:TabStrip ID="MenuRegistersFx" runat="server"></eluc:TabStrip>
+                <telerik:RadGrid ID="rgfxcontract" runat="server" OnNeedDataSource="rgfx_NeedDataSource" OnItemDataBound="rgfxcontract_ItemDataBound" OnItemCommand="rgfxcontract_ItemCommand">
+                    <MasterTableView AutoGenerateColumns="false">
+                        <Columns>
+
+                            <telerik:GridTemplateColumn HeaderText="Account Contract Application">
+                                <ItemTemplate>
+                                <telerik:RadLabel ID="lblid" runat="server" Visible="false" Text='<%# DataBinder.Eval(Container,"DataItem.FLDFXCONTRACTID") %>'></telerik:RadLabel>
+                            
+                                <telerik:RadLabel ID="lblapp" runat="server" ToolTip="Application" Text='<%# DataBinder.Eval(Container,"DataItem.FLDCONTRACTAPPLICATION") %>' ></telerik:RadLabel>
+                                </ItemTemplate>
+                            </telerik:GridTemplateColumn>
+
+                            <telerik:GridTemplateColumn HeaderText="FX Contract">
+                                <ItemTemplate>
+                                <telerik:RadLabel ID="lblcon" runat="server" ToolTip="Application" Text='<%# DataBinder.Eval(Container,"DataItem.FLDFXCONTRACT") %>' ></telerik:RadLabel>
+                                </ItemTemplate>
+                            </telerik:GridTemplateColumn>
+
+                            <telerik:GridTemplateColumn HeaderText="Exchange Rate">
+                                <ItemTemplate>
+                                <telerik:RadLabel ID="lblrat" runat="server" ToolTip="Application" Text='<%# DataBinder.Eval(Container,"DataItem.FLDEXCHANGERATE") %>' ></telerik:RadLabel>
+                                </ItemTemplate>
+                            </telerik:GridTemplateColumn>
+
+                            <telerik:GridTemplateColumn HeaderText="Bank Account">
+                                <ItemTemplate>
+                                <telerik:RadLabel ID="lblbnk" runat="server" ToolTip="Application" Text='<%# DataBinder.Eval(Container,"DataItem.FLDBANKACCOUNT") %>' ></telerik:RadLabel>
+                                </ItemTemplate>
+                            </telerik:GridTemplateColumn>
+
+                            <telerik:GridTemplateColumn HeaderText="Bank Account Currency">
+                                <ItemTemplate>
+                                <telerik:RadLabel ID="lblbkcr" runat="server" ToolTip="Application" Text='<%# DataBinder.Eval(Container,"DataItem.FLDBANKACCOUNTCURRENCY") %>' ></telerik:RadLabel>
+                                </ItemTemplate>
+                            </telerik:GridTemplateColumn>
+
+                            <telerik:GridTemplateColumn HeaderText="Payment Currency">
+                                <ItemTemplate>
+                                <telerik:RadLabel ID="lblpycr" runat="server" ToolTip="Application" Text='<%# DataBinder.Eval(Container,"DataItem.FLDPAYMENTCURRENCY") %>' ></telerik:RadLabel>
+                                </ItemTemplate>
+                            </telerik:GridTemplateColumn>
+
+                            <telerik:GridTemplateColumn HeaderText="Action">
+                            <HeaderStyle HorizontalAlign="Center" VerticalAlign="Middle" />
+                            <ItemStyle Wrap="false" HorizontalAlign="Center" />
+                            <ItemTemplate>
+                                <asp:LinkButton runat="server" CommandName="EDIT" ID="cmdEdit" ToolTip="Edit" >
+                                    <span class="icon"><i class="fas fa-edit"></i></span>
+                                </asp:LinkButton>
+                                <asp:LinkButton runat="server" CommandName="DELETE" ID="cmdDelete" ToolTip="Delete">
+                                    <span class="icon"><i class="fas fa-trash-alt"></i></span>
+                                </asp:LinkButton>
+                            </ItemTemplate>
+                        </telerik:GridTemplateColumn>
+                        </Columns>
+                        <NoRecordsTemplate>
+                            <telerik:RadLabel ID="lblre" runat="server" Text="No Record Founds"></telerik:RadLabel>
+                        </NoRecordsTemplate>
+                    </MasterTableView>
+                </telerik:RadGrid>
+            </telerik:RadAjaxPanel>
+        </div>
+    </form>
+</body>
+</html>
+
+
+
+
+
+cs
+
+using SouthNests.Phoenix.Framework;
+using SouthNests.Phoenix.Registers;
+using System;
+using System.Data;
+using System.Web.UI.WebControls;
+using SouthNests.Phoenix.PlannedMaintenance;
+using Telerik.Web.UI;
+
+
+public partial class Registers_RegisterFXContract : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        PhoenixToolbar toolbar = new PhoenixToolbar();
+        toolbar.AddFontAwesomeButton("javascript:openNewWindow('codehelpactivity','Category','Registers/RegisterFXContractAdd.aspx',false,700,300)", "Add", "<i class=\"fa fa-plus-circle\"></i>", "Add");
+        MenuRegistersFx.AccessRights = this.ViewState;
+        MenuRegistersFx.MenuList = toolbar.Show();
+    }
+
+    protected void rgfx_NeedDataSource(object sender, Telerik.Web.UI.GridNeedDataSourceEventArgs e)
+    {
+        ViewState["PAGENUMBER"] = ViewState["PAGENUMBER"] != null ? ViewState["PAGENUMBER"] : rgfxcontract.CurrentPageIndex + 1;
+        BindData();
+    }
+    public void BindData()
+    {
+        int iRowCount = 0;
+        int iTotalPageCount = 0;
+
+        string[] alColumns = { "FLDCONTRACTAPPLICATION", "FLDFXCONTRACT", "FLDEXCHANGERATE", "FLDBANKACCOUNT", "FLDBANKACCOUNTCURRENCY", "FLDPAYMENTCURRENCY" };
+        string[] alCaptions = { "ContractApplication", "FxContract", "ExchangeRate", "BankAccount", "BankAccountCurrecy", "PaymentCurrency" };
+        string sortexpression = (ViewState["SORTEXPRESSION"] == null) ? null : (ViewState["SORTEXPRESSION"].ToString());
+        int? sortdirection = null;
+        if (ViewState["SORTDIRECTION"] != null)
+            sortdirection = Int32.Parse(ViewState["SORTDIRECTION"].ToString());
+
+        DataSet ds = PhoenixAccountsSettings.FxContractSearch(
+                                                                PhoenixSecurityContext.CurrentSecurityContext.UserCode, 
+                                                                General.GetNullableString(ContractApp.Text),
+                                                                General.GetNullableInteger(BankAcc.Text),
+                                                                sortexpression, 
+                                                                sortdirection,
+                                                                (int)ViewState["PAGENUMBER"],
+                                                                rgfxcontract.PageSize,
+                                                                ref iRowCount,
+                                                                ref iTotalPageCount);
+
+        General.SetPrintOptions("gvCertificates", "Certificate Registers", alCaptions, alColumns, ds);
+
+        rgfxcontract.DataSource = ds;
+        rgfxcontract.VirtualItemCount = iRowCount;
+
+        ViewState["ROWCOUNT"] = iRowCount;
+        ViewState["TOTALPAGECOUNT"] = iTotalPageCount;
+    }
+
+    protected void rgfxcontract_ItemDataBound(object sender, GridItemEventArgs e)
+    {
+        if (e.Item is GridDataItem)
+        {
+            LinkButton eb = (LinkButton)e.Item.FindControl("cmdEdit");
+            RadLabel strID = (RadLabel)e.Item.FindControl("lblid");
+            if (eb != null)
+            {
+                eb.Attributes.Add("onclick", "openNewWindow('Certificate', '','" + Session["sitepath"] + "/Registers/RegisterFXContractUpdate.aspx?FXID=" + strID.Text + "',false,700,450); return false;");
+            }
+        }
+    }
+
+    protected void rgfxcontract_ItemCommand(object sender, GridCommandEventArgs e)
+    {
+        RadLabel strID = (RadLabel)e.Item.FindControl("lblid");
+        if (e.CommandName.ToUpper().Equals("DELETE"))
+        {
+            PhoenixAccountsSettings.FxContractDelete(
+                                                    PhoenixSecurityContext.CurrentSecurityContext.UserCode, 
+                                                    General.GetNullableGuid(strID.Text));
+        }
+    }
+}
+
+
+3nd page add(update)
+RegisterFXContractUpdate.aspx
+
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="RegisterFXContractUpdate.aspx.cs" Inherits="Registers_RegisterFXContractUpdate" %>
+
+<%@ Import Namespace="SouthNests.Phoenix.Registers" %>
+<%@ Register TagPrefix="eluc" TagName="TabStrip" Src="~/UserControls/UserControlTabsTelerik.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Error" Src="~/UserControls/UserControlErrorMessage.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Status" Src="~/UserControls/UserControlStatus.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="ToolTip" Src="~/UserControls/UserControlToolTip.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Category" Src="~/UserControls/UserControlCertificateCategory.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Department" Src="~/UserControls/UserControlDepartment.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="UserControlDate" Src="~/UserControls/UserControlDate.ascx" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <telerik:RadCodeBlock ID="Radcodeblock1" runat="server">
+        <%: Scripts.Render("~/bundles/js") %>
+        <%: Styles.Render("~/bundles/css") %>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                var browserHeight = $telerik.$(window).height();
+                $("#gvBasicCause").height(browserHeight - 90);
+            });
+        </script>
+    </telerik:RadCodeBlock>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            <telerik:RadScriptManager ID="scriptid" runat="server"></telerik:RadScriptManager>
+            <telerik:RadSkinManager ID="skinid" runat="server"></telerik:RadSkinManager>
+            <telerik:RadAjaxPanel ID="RadAjaxPanel1" runat="server">
+            <eluc:TabStrip ID="MenuHeader" runat="server" OnTabStripCommand="MenuHeader_TabStripCommand" Title=""></eluc:TabStrip>
+            <table>
+                <tr>
+                    <td>
+                        <telerik:RadLabel ID="lblfxcontract" runat="server" Text="FX Contract"></telerik:RadLabel>
+                    </td>
+                    <td>
+                        <telerik:RadTextBox ID="txtfxcontract" runat="server"></telerik:RadTextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <telerik:RadLabel ID="lblpaycurrency" runat="server" Text="Payment Currency"></telerik:RadLabel>
+                    </td>
+                    <td>
+                        <telerik:RadTextBox ID="txtpaycurrency" runat="server"></telerik:RadTextBox>
+                    </td>
+                </tr>
+            </table>
+            </telerik:RadAjaxPanel>
+        </div>
+    </form>
+</body>
+</html>
+
+
+
+cs
+
+using SouthNests.Phoenix.Accounts;
+using SouthNests.Phoenix.Framework;
+using SouthNests.Phoenix.Registers;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using Telerik.Web.UI;
+
+public partial class Registers_RegisterFXContractUpdate : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        SessionUtil.PageAccessRights(this.ViewState);
+        PhoenixToolbar toolbar = new PhoenixToolbar();
+        toolbar.AddButton("e", "SAVE", ToolBarDirection.Right);
+        MenuHeader.MenuList = toolbar.Show();
+
+        if (!IsPostBack)
+        {
+            ViewState["FXID"] = "";
+            if (Request.QueryString["FXID"] != null)
+            {
+                ViewState["FXID"] = Request.QueryString["FXID"].ToString();
+                Bindemp();
+            }
+        }
+    }
+    protected void Bindemp()
+    {
+        DataSet ds = PhoenixAccountsSettings.FxContractEdit(General.GetNullableGuid(ViewState["FXID"].ToString()));
+        if (ds.Tables[0].Rows.Count > 0)
+        {
+            txtfxcontract.Text = ds.Tables[0].Rows[0]["FLDFXCONTRACT"].ToString();
+            txtpaycurrency.Text = ds.Tables[0].Rows[0]["FLDPAYMENTCURRENCY"].ToString();
+        }
+    }
+
+    protected void MenuHeader_TabStripCommand(object sender, EventArgs e)
+    {
+        RadToolBarEventArgs dce = (RadToolBarEventArgs)e;
+
+        string CommandName = ((RadToolBarButton)dce.Item).CommandName;
+        if (CommandName.ToUpper().Equals("SAVE"))
+        {
+            PhoenixAccountsSettings.FxContractUpdate(PhoenixSecurityContext.CurrentSecurityContext.UserCode
+                                                     , General.GetNullableGuid(ViewState["FXID"].ToString())
+                                                     , General.GetNullableString(txtfxcontract.Text)
+                                                     , General.GetNullableInteger(txtpaycurrency.Text)
+                                                      );
+        }
+    }
+}
+
+
+
+
+2nd page add insert
+RegisterFXContractAdd.aspx
+
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="RegisterFXContractAdd.aspx.cs" Inherits="Registers_RegisterFXContractAdd" %>
+
+
+<%@ Register TagPrefix="eluc" TagName="TabStrip" Src="~/UserControls/UserControlTabsTelerik.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Error" Src="~/UserControls/UserControlErrorMessage.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Status" Src="~/UserControls/UserControlStatus.ascx" %>
+<%@ Register TagPrefix="eluc" TagName="Number" Src="~/UserControls/UserControlMaskNumber.ascx" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <telerik:RadCodeBlock ID="Radcodeblock1" runat="server">
+        <%: Scripts.Render("~/bundles/js") %>
+        <%: Styles.Render("~/bundles/css") %>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                var browserHeight = $telerik.$(window).height();
+                $("#gvBasicCause").height(browserHeight - 90);
+            });
+        </script>
+    </telerik:RadCodeBlock>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            <telerik:RadScriptManager ID="scriptmanager" runat="server"></telerik:RadScriptManager>
+            <telerik:RadSkinManager ID="skinManager" runat="server"></telerik:RadSkinManager>
+            <telerik:RadWindow ID="windowManager" runat="server"></telerik:RadWindow>
+            <telerik:RadAjaxPanel ID="ajaxPanel" runat="server">
+                <eluc:TabStrip ID="ContactAdd" runat="server" OnTabStripCommand="ContactAdd_TabStripCommand" />
+
+                <table>
+                    <tr>
+                        <td>
+                            <telerik:RadLabel ID="lblAccountApp" runat="server" Text="Account Contract Application" Width="200px"></telerik:RadLabel>
+                            <telerik:RadTextBox ID="txtAccountApp" runat="server" Width="200px"></telerik:RadTextBox>
+                        </td>
+                        <td>
+                            <telerik:RadLabel ID="lblBankAcc" runat="server" Text="Bank Account" Width="200px"></telerik:RadLabel>
+                            <telerik:RadTextBox ID="txtBankAcc" runat="server" Width="200px"></telerik:RadTextBox>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <telerik:RadLabel ID="lblFxContract" runat="server" Text="FX Contract" Width="200px"></telerik:RadLabel>
+                            <telerik:RadTextBox ID="txtFxContract" runat="server" Width="200px"></telerik:RadTextBox>
+                        </td>
+                        <td>
+                            <telerik:RadLabel ID="lblBankCurrency" runat="server" Text="Bank Account Currency" Width="200px"></telerik:RadLabel>
+                            <telerik:RadTextBox ID="txtBankCurrency" runat="server" Width="200px"></telerik:RadTextBox>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <telerik:RadLabel ID="lblExchrate" runat="server" Text="Exchange Rate" Width="200px"></telerik:RadLabel>
+                            <telerik:RadTextBox ID="txtExchrate" runat="server" Width="200px"></telerik:RadTextBox>
+                        </td>
+                        <td>
+                            <telerik:RadLabel ID="lblpayment" runat="server" Text="Payment Currency" Width="200px"></telerik:RadLabel>
+                            <telerik:RadTextBox ID="txtpayment" runat="server" Width="200px"></telerik:RadTextBox>
+                        </td>
+                    </tr>
+                </table>
+            </telerik:RadAjaxPanel>
+        </div>
+    </form>
+</body>
+</html>
+
+
+
+
+cs
+
+using SouthNests.Phoenix.Framework;
+using SouthNests.Phoenix.Registers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+public partial class Registers_RegisterFXContractAdd : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        PhoenixToolbar toolbar = new PhoenixToolbar();
+        toolbar.AddButton("Save","SAVE",ToolBarDirection.Right);
+        ContactAdd.AccessRights = this.ViewState;
+        ContactAdd.MenuList = toolbar.Show();
+    }
+
+    protected void ContactAdd_TabStripCommand(object sender, EventArgs e)
+    {
+        PhoenixAccountsSettings.FxContractInsert(
+                                 PhoenixSecurityContext.CurrentSecurityContext.UserCode
+                                 , General.GetNullableString(txtAccountApp.Text)
+                                 , General.GetNullableString(txtFxContract.Text)
+                                 , General.GetNullableDecimal(txtExchrate.Text)
+                                 , General.GetNullableInteger(txtBankAcc.Text)
+                                 , General.GetNullableString(txtBankCurrency.Text)
+                                 , General.GetNullableInteger(txtpayment.Text)
+                                 );
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+app code
+
+
+
+        public static DataSet FxContractSearch(int rowusercode, string contapp, int? bankacc, string sortexpression, int? sortdirection, int iPageNumber, int iPageSize, ref int iRowCount, ref int iTotalPageCount)
+        {
+            DataSet ds = new DataSet();
+
+            List<SqlParameter> ParameterList = new List<SqlParameter>();
+            ParameterList.Add(DataAccess.GetDBParameter("@ROWUSERCODE", SqlDbType.Int, DbConstant.INT, ParameterDirection.Input, rowusercode));
+            ParameterList.Add(DataAccess.GetDBParameter("@CONTRACTAPPLICATION", SqlDbType.VarChar, DbConstant.VARCHAR_50, ParameterDirection.Input, contapp));
+            ParameterList.Add(DataAccess.GetDBParameter("@BANKACCOUNT", SqlDbType.Int, DbConstant.INT, ParameterDirection.Input, bankacc));
+            ParameterList.Add(DataAccess.GetDBParameter("@SORTBY", SqlDbType.VarChar, 100, ParameterDirection.Input, sortexpression));
+            ParameterList.Add(DataAccess.GetDBParameter("@SORTDIRECTION", SqlDbType.TinyInt, 4, ParameterDirection.Input, sortdirection));
+            ParameterList.Add(DataAccess.GetDBParameter("@PAGENUMBER", SqlDbType.Int, 4, ParameterDirection.Input, iPageNumber));
+            ParameterList.Add(DataAccess.GetDBParameter("@PAGESIZE", SqlDbType.Int, 4, ParameterDirection.Input, iPageSize));
+            ParameterList.Add(DataAccess.GetDBParameter("@RESULTCOUNT", SqlDbType.Int, 4, ParameterDirection.Output, iRowCount));
+            ParameterList.Add(DataAccess.GetDBParameter("@TOTALPAGECOUNT", SqlDbType.Int, 4, ParameterDirection.Output, iTotalPageCount));
+
+            ds = DataAccess.ExecSPReturnDataSet("PRFXCONTRACTSEARCH", ParameterList);
+            foreach (SqlParameter sp in ParameterList)
+            {
+                if (sp.Direction == ParameterDirection.Output)
+                {
+                    if (sp.ParameterName == "@RESULTCOUNT")
+                        iRowCount = (int)sp.Value;
+                    if (sp.ParameterName == "@TOTALPAGECOUNT")
+                        iTotalPageCount = (int)sp.Value;
+                }
+            }
+            return ds;
+        }
+        public static DataSet FxContractInsert(int rowusercode, string contapp, string fxcont, decimal? exchrat, int? bnkacc, string accrn, int? paycur)
+        {
+            DataSet ds = new DataSet();
+
+            List<SqlParameter> ParameterList = new List<SqlParameter>();
+            ParameterList.Add(DataAccess.GetDBParameter("@ROWUSERCODE", SqlDbType.Int, DbConstant.INT, ParameterDirection.Input, rowusercode));
+            ParameterList.Add(DataAccess.GetDBParameter("@CONTRACTAPPLICATION", SqlDbType.VarChar, DbConstant.VARCHAR_MAX, ParameterDirection.Input, contapp));
+            ParameterList.Add(DataAccess.GetDBParameter("@FXCONTRACT", SqlDbType.VarChar, DbConstant.VARCHAR_MAX, ParameterDirection.Input, fxcont));
+            ParameterList.Add(DataAccess.GetDBParameter("@EXCHANGERATE", SqlDbType.Decimal, DbConstant.DECIMAL, ParameterDirection.Input, exchrat));
+            ParameterList.Add(DataAccess.GetDBParameter("@BANKACCOUNT", SqlDbType.Int, DbConstant.INT, ParameterDirection.Input, bnkacc));
+            ParameterList.Add(DataAccess.GetDBParameter("@BANKACCOUNTCURRENCY", SqlDbType.VarChar, DbConstant.VARCHAR_MAX, ParameterDirection.Input, accrn));
+            ParameterList.Add(DataAccess.GetDBParameter("@PAYMENTCURRENCY", SqlDbType.Int, DbConstant.INT, ParameterDirection.Input, paycur));
+            int n = DataAccess.ExecSPReturnInt("PRFXCONTRACTINSERT", ParameterList);
+
+            //foreach (SqlParameter sp in ParameterList)
+            //{
+            //    if (sp.Direction == ParameterDirection.Output)
+            //    {
+            //        if (sp.ParameterName == "@RESULTCOUNT")
+            //            iRowCount = (int)sp.Value;
+            //        if (sp.ParameterName == "@TOTALPAGECOUNT")
+            //            iTotalPageCount = (int)sp.Value;
+            //    }
+            //}
+            return ds;
+        }
+        public static void FxContractUpdate(int rowusercode, Guid? fxId, string fxcontract, int? paycurrency)
+        {
+            List<SqlParameter> ParameterList = new List<SqlParameter>();
+            ParameterList.Add(DataAccess.GetDBParameter("@ROWUSERCODE", SqlDbType.Int, DbConstant.INT, ParameterDirection.Input, rowusercode));
+            ParameterList.Add(DataAccess.GetDBParameter("@FXCONTRACTID", SqlDbType.UniqueIdentifier, DbConstant.UNIQUEIDENTIFIER, ParameterDirection.Input, fxId));
+            ParameterList.Add(DataAccess.GetDBParameter("@FXCONTRACT", SqlDbType.VarChar, DbConstant.VARCHAR_MAX, ParameterDirection.Input, fxcontract));
+            ParameterList.Add(DataAccess.GetDBParameter("@PAYMENTCURRENCY", SqlDbType.Int, DbConstant.INT, ParameterDirection.Input, paycurrency));
+            int n = DataAccess.ExecSPReturnInt("PRFXCONTRACTUPDATE", ParameterList);
+        }
+        public static DataSet FxContractEdit(Guid? fxid)
+        {
+            List<SqlParameter> ParameterList = new List<SqlParameter>
+            {
+                DataAccess.GetDBParameter("@FXCONTRACTID", SqlDbType.UniqueIdentifier, DbConstant.UNIQUEIDENTIFIER, ParameterDirection.Input, fxid)
+            };
+
+            return DataAccess.ExecSPReturnDataSet("PRFXCONTRACTEDIT", ParameterList);
+        }
+        public static void FxContractDelete(int rowusercode, Guid? fxid)
+        {
+            List<SqlParameter> ParameterList = new List<SqlParameter>();
+
+            //DataAccess.GetDBParameter("@FXCONTRACTID", SqlDbType.UniqueIdentifier, DbConstant.UNIQUEIDENTIFIER, ParameterDirection.Input, fxid)
+            ParameterList.Add(DataAccess.GetDBParameter("@ROWUSERCODE", SqlDbType.Int, DbConstant.INT, ParameterDirection.Input, rowusercode));
+            ParameterList.Add(DataAccess.GetDBParameter("@FXCONTRACTID", SqlDbType.UniqueIdentifier, DbConstant.UNIQUEIDENTIFIER, ParameterDirection.Input, fxid));
+
+            int n = DataAccess.ExecSPReturnInt("PRFXCONTRACTDELETE", ParameterList);
+        }
+    }
